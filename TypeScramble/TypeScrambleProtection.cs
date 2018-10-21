@@ -18,12 +18,12 @@ namespace TypeScramble {
         public override string FullId => "BahNahNah.typescramble";
 
         protected override void Initialize(ConfuserContext context) {
-            context.Registry.RegisterService(FullId, typeof(TypeService), new TypeService(context));
+            context.Registry.RegisterService(FullId, typeof(ITypeService), new TypeService(context));
         }
 
         protected override void PopulatePipeline(ProtectionPipeline pipeline) {
-            pipeline.InsertPreStage(PipelineStage.Inspection, new AnalyzePhase(this));
-            pipeline.InsertPostStage(PipelineStage.Inspection, new ScramblePhase(this));
+            pipeline.InsertPreStage(PipelineStage.Inspection, new AnalyzeMethodsPhase(this));
+            pipeline.InsertPostStage(PipelineStage.BeginModule, new ScramblePhase(this));
         }
     }
 }

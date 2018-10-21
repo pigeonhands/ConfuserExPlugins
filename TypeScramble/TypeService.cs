@@ -1,56 +1,91 @@
 ﻿using Confuser.Core;
 using dnlib.DotNet;
+using dnlib.DotNet.Emit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TypeScramble.Scrambler;
+using TypeScramble.Analysis;
+using TypeScramble.Analysis.Context;
+using TypeScramble.Analysis.Context.Methods;
+using TypeScramble.Rewrite.Instructions;
 
 namespace TypeScramble {
-    public class TypeService {
+    interface ITypeService {
+        IEnumerable<ScannedMethod> TargetMethods { get; }
 
-        private ConfuserContext content;
-        private Dictionary<MDToken, ScannedItem> GenericsMapper = new Dictionary<MDToken, ScannedItem>();
-        public static ConfuserContext DebugContext { get; private set; }
+        void AnalizeMethod(MethodDef m);
+        void AddAssociatedType(MethodDef m, TypeSig t);
 
-        public TypeService(ConfuserContext _context) {
-            content = _context;
-            DebugContext = content;
+    }
+
+    class TypeService : ITypeService {
+
+        public IEnumerable<ScannedMethod> TargetMethods => scannedMethods;
+
+
+        private readonly ConfuserContext context;
+
+        private readonly List<ScannedMethod> scannedMethods = new List<ScannedMethod>();
+        private readonly MethodContextAnalyzer[] methodAnalyzers = new MethodContextAnalyzer[] {
+            new MemberRefAnalyzer(),
+            new MethodDefAnalyzer(),
+            new MethodSpecAnalyzer(),
+            new TypeRefAnalyzer(),
+        };
+
+        private readonly InstructionRewriter[] instructionRewriters = new InstructionRewriter[] {
+            new MemberRefInstructionRewriter(),
+            new MethodDefInstructionRewriter(),
+        };
+
+        public TypeService( ConfuserContext _context) {
+            this.context = _context;
+
         }
 
 
-        public void AddScannedItem(ScannedMethod m) {
-
-            ScannedItem typescan;
-            if(GenericsMapper.TryGetValue(m.TargetMethod.DeclaringType.MDToken, out typescan)) {
-                m.GenericCount += typescan.GenericCount;
+        public void AddAssociatedType(MethodDef m, TypeSig t) {
+            var sm = scannedMethods.FirstOrDefault(x => x.TargetMethod == m);
+            if(sm == null) {
+                sm = new ScannedMethod(m);
+                scannedMethods.Add(sm);
             }
-            AddScannedItemGeneral(m);
+            sm.AddAssociation(t);
         }
 
+        public void AnalizeMethod(MethodDef m) {
 
-        public void AddScannedItem(ScannedType m) {
-            //AddScannedItemGeneral(m);
-        }
+            foreach(Instruction i in m.Body.Instructions) {
+                if (i.Operand == null) {
+                    continue;
+                }
 
-        private void AddScannedItemGeneral(ScannedItem m) {
-            m.Scan();
-            if (!GenericsMapper.ContainsKey(m.GetToken())) {
-                GenericsMapper.Add(m.GetToken(), m);
+                var operandType = i.Operand.GetType().BaseType;
+
+
+                foreach (MethodContextAnalyzer c in methodAnalyzers.Where(x => x.TargetType == operandType)){
+                    c.ProcessOperand(this, m, i.Operand);
+                }
             }
+
         }
 
-        public void PrepairItems() {
-            foreach(var item in GenericsMapper.Values) {
-                item.PrepairGenerics();
+
+        public void RewriteMethod(MethodDef m) {
+            var instructions = m.Body.Instructions;
+
+            for (int i = 0; i < instructions.Count; i++) {
+                Instruction inst = instructions[i];
+                if(inst.Operand == null) {
+                    continue;
+                }
+                var operandType = inst.Operand.GetType().BaseType;
+                foreach (InstructionRewriter ir in instructionRewriters.Where(x => x.TargetType == operandType)) {
+                    ir.ProcessInstruction(this, m, instructions, ref i, inst);
+                }
             }
-        }
-
-        public ScannedItem GetItem(MDToken token) {
-            ScannedItem i = null;
-            GenericsMapper.TryGetValue(token, out i);
-            return i;
         }
 
     }

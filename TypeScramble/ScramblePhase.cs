@@ -5,40 +5,38 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TypeScramble.Scrambler;
 
 namespace TypeScramble {
     class ScramblePhase : ProtectionPhase {
+        public override ProtectionTargets Targets => ProtectionTargets.AllDefinitions;
 
-        public ScramblePhase(TypeScrambleProtection parent) : base(parent){
-        }
+        public override string Name => "Type scrambling";
 
-        public override ProtectionTargets Targets => ProtectionTargets.Types | ProtectionTargets.Methods | ProtectionTargets.Modules;
-
-        public override string Name =>"Type scrambler";
+        public ScramblePhase(TypeScrambleProtection parent)
+            : base(parent) { }
 
         protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
 
-            var rewriter = new TypeRewriter(context);
-            rewriter.ApplyGeterics();
+            var service = (TypeService)context.Registry.GetService<ITypeService>();
 
-            foreach (IDnlibDef def in parameters.Targets.WithProgress(context.Logger)) {
 
-                switch (def) {
+            foreach(var m in service.TargetMethods) {
+                m.CreateGenerics();
 
-                    case MethodDef md:
-                        if (md.HasBody) {
-                            rewriter.Process(md);
-                        }
-                        break;
-                    case ModuleDef mod:
-                        rewriter.ImportCode(mod);
-                        break;
+                foreach(var g in m.GenericParams) {
+                    m.TargetMethod.GenericParameters.Add(g);
                 }
-
-                context.CheckCancellation();
             }
 
+
+            foreach (var method in parameters.Targets.WithProgress(context.Logger).OfType<MethodDef>()) {
+
+                if (method.HasBody) {
+                    service.RewriteMethod(method);
+                    
+                }
+
+            }
 
         }
     }

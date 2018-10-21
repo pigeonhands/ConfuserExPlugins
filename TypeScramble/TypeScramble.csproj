@@ -46,34 +46,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Analysis\Context\Methods\MethodContextAnalyzer.cs" />
+    <Compile Include="Analysis\Context\Methods\MemberRefAnalyzer.cs" />
+    <Compile Include="Analysis\Context\Methods\MethodDefAnalyzer.cs" />
+    <Compile Include="Analysis\Context\Methods\MethodSpecAnalyzer.cs" />
+    <Compile Include="Analysis\Context\Methods\TypeRefAnalyzer.cs" />
+    <Compile Include="Analysis\ScannedMethod.cs" />
+    <Compile Include="AnalyzeMethodsPhase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rewrite\Instructions\InstructionRewriter.cs" />
+    <Compile Include="Rewrite\Instructions\MemberRefInstructionRewriter.cs" />
+    <Compile Include="Rewrite\Instructions\MethodDefInstructionRewriter.cs" />
     <Compile Include="ScramblePhase.cs" />
-    <Compile Include="Scrambler\Analyzers\ContextAnalyzer.cs" />
-    <Compile Include="Scrambler\Analyzers\ContextAnalyzerFactory.cs" />
-    <Compile Include="Scrambler\Analyzers\MemberRefAnalyzer.cs" />
-    <Compile Include="Scrambler\Analyzers\MethodDefAnalyzer.cs" />
-    <Compile Include="Scrambler\Analyzers\MethodSpecAnalyzer.cs" />
-    <Compile Include="Scrambler\Analyzers\TypeRefAnalyzer.cs" />
-    <Compile Include="Scrambler\Rewriter\EmbeddedCode\ObjectCreationFactory.cs" />
-    <Compile Include="Scrambler\Rewriter\Instructions\InstructionRewriter.cs" />
-    <Compile Include="Scrambler\Rewriter\Instructions\InstructionRewriterFactory.cs" />
-    <Compile Include="Scrambler\Rewriter\Instructions\MemberRefInstructionRewriter.cs" />
-    <Compile Include="Scrambler\Rewriter\Instructions\MethodSpecInstructionRewriter.cs" />
-    <Compile Include="Scrambler\Rewriter\Instructions\TypeDefInstructionRewriter.cs" />
-    <Compile Include="Scrambler\Rewriter\Instructions\TypeRefInstructionRewriter.cs" />
-    <Compile Include="Scrambler\ScannedType.cs" />
-    <Compile Include="Scrambler\TypeRewriter.cs" />
-    <Compile Include="Scrambler\ScannedItem.cs" />
-    <Compile Include="Scrambler\ScannedMethod.cs" />
     <Compile Include="TypeScrambleProtection.cs" />
-    <Compile Include="AnalyzePhase.cs" />
     <Compile Include="TypeService.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Scrambler\Rewriter\Instructions\MethodDefInstructionRewriter.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Healpers\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
