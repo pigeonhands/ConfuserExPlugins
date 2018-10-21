@@ -1,0 +1,7 @@
+<project outputDir="D:\Visual Studio Projects 2017\ConfuserExPlugins\DummyApplication\bin\Debug\Confused" baseDir="D:\Visual Studio Projects 2017\ConfuserExPlugins\DummyApplication\bin\Debug" xmlns="http://confuser.codeplex.com">
+  <rule pattern="true" inherit="false">
+    <protection id="typescramble" />
+  </rule>
+  <module path="DummyApplication.exe" />
+  <plugin>D:\Visual Studio Projects 2017\ConfuserExPlugins\TypeScramble\bin\Debug\TypeScramble.dll</plugin>
+</project>

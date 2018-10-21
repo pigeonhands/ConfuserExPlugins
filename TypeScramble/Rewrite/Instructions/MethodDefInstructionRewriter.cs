@@ -14,8 +14,8 @@ namespace TypeScramble.Rewrite.Instructions {
             var targetMethod = service.TargetMethods.FirstOrDefault(x => x.TargetMethod.MDToken == operand.MDToken);
 
 
-            if (targetMethod != null && currentMethod != null) {
-                var typeSigList = targetMethod.GenericCallTypes.Select(currentMethod.ToGenericIfAvalible).ToArray();
+            if (targetMethod != null) {
+                var typeSigList = targetMethod.GenericCallTypes.Select(x => currentMethod?.ToGenericIfAvalible(x) ?? x).ToArray();
                 body[index].Operand = new MethodSpecUser(operand, new GenericInstMethodSig(typeSigList));
             }
 

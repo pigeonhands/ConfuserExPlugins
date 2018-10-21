@@ -52,6 +52,9 @@ namespace TypeScramble {
                 sm = new ScannedMethod(m);
                 scannedMethods.Add(sm);
             }
+           // if (t.IsSingleOrMultiDimensionalArray) {
+            //    var arraySig = t as SZArraySig;
+           // }
             sm.AddAssociation(t);
         }
 

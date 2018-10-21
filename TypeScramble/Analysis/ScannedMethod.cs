@@ -23,7 +23,9 @@ namespace TypeScramble.Analysis {
         }
 
         public void AddAssociation(TypeSig sig) {
-            AssociatedTypes.Add(sig);
+            if(sig?.ScopeType != null && !AssociatedTypes.Contains(sig)) {
+                AssociatedTypes.Add(sig);
+            }
         }
 
 
@@ -35,7 +37,7 @@ namespace TypeScramble.Analysis {
                 if (!Generics.ContainsKey(t.ScopeType.MDToken.Raw)) {
                     Generics.Add(t.ScopeType.MDToken.Raw, 
                         new GenericParamUser(
-                            (ushort)(TargetMethod.GenericParameters.Count + Generics.Count()), 
+                            (ushort)(TargetMethod.DeclaringType.GenericParameters.Count + TargetMethod.GenericParameters.Count + Generics.Count()), 
                             GenericParamAttributes.NoSpecialConstraint, t.TypeName)); //gen name
                     GenericCallTypes.Add(t);
                 }

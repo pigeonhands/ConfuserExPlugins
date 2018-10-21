@@ -26,6 +26,8 @@ namespace TypeScramble {
                 foreach(var g in m.GenericParams) {
                     m.TargetMethod.GenericParameters.Add(g);
                 }
+
+                m.TargetMethod.ReturnType = m.ToGenericIfAvalible(m.TargetMethod.ReturnType);
             }
 
 

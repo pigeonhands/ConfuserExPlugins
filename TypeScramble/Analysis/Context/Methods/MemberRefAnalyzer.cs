@@ -9,6 +9,7 @@ namespace TypeScramble.Analysis.Context.Methods {
     class MemberRefAnalyzer : MethodContextAnalyzer<MemberRef> {
 
         public override void Process(ITypeService service, MethodDef m, MemberRef o) {
+        
             TypeSig sig = null;
 
             if (o.Class is TypeRef) {
