@@ -7,18 +7,23 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace TypeScramble.Rewrite {
-    class ObjectCreationFactory {
+    class ObjectCreationFactory : IFactory {
 
         public static readonly ObjectCreationFactory Instance = new ObjectCreationFactory();
 
-        public IEnumerable<MethodDef> CreationMethods => objectCreationFactories.Values;
+        public IEnumerable<MemberRef> ObjectCreationRef => objectCreationRefs;
+
+        public IEnumerable<MethodDef> Factories => objectCreationFactories.Values;
+
+        private readonly List<MemberRef> objectCreationRefs = new List<MemberRef>();
 
         private Dictionary<int, MethodDef> objectCreationFactories;
 
-        public void CreateMethods(ITypeService service, ModuleDef module) {
-            objectCreationFactories = new Dictionary<int, MethodDef>() {
-                {0,CreateFactoryMethodNoParameters(service, module) },
-            };
+        public void AddObjectReference(MemberRef s) {
+            if (!objectCreationRefs.Contains(s)) {
+                objectCreationRefs.Add(s);
+
+            }
         }
 
         public MethodDef GetCreationMethod(int param) => objectCreationFactories[param];
@@ -46,7 +51,7 @@ namespace TypeScramble.Rewrite {
             i.Add(Instruction.Create(OpCodes.Stloc, rtHandle));
 
 
-            foreach (MemberRef mr in service.ObjectCreationRef) {
+            foreach (MemberRef mr in ObjectCreationRef) {
                 Instruction endjump = Instruction.Create(OpCodes.Nop);
 
                 i.Add(Instruction.Create(OpCodes.Ldloc, rtHandle));
@@ -73,5 +78,14 @@ namespace TypeScramble.Rewrite {
             return method;
         }
 
+        public void CreateFactories(ITypeService service, ModuleDef module) {
+            objectCreationFactories = new Dictionary<int, MethodDef>() {
+                {0,CreateFactoryMethodNoParameters(service, module) },
+            };
+        }
+
+        public MethodDef GetFactory(int numberOfParams) =>  objectCreationFactories[numberOfParams];
+        
+        
     }
 }

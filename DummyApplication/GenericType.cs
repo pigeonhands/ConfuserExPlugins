@@ -21,6 +21,10 @@ namespace DummyApplication {
 
         public GenericType() {
             nextedType = new NestedGeneric<T>();
+
+            if(typeof(T) == typeof(string) && typeof(T) == typeof(int)) {
+                Console.WriteLine("impossable");
+            }
         }
 
 

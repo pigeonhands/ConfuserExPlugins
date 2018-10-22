@@ -23,13 +23,18 @@ namespace TypeScramble {
             var service = context.Registry.GetService<ITypeService>();
 
             var objectFactory = new  TypeDefUser("factory", context.CurrentModule.GlobalType);
-            ObjectCreationFactory.Instance.CreateMethods(service, context.CurrentModule);
+            ObjectCreationFactory.Instance.CreateFactories(service, context.CurrentModule);
+            CallProxyFactory.Instance.CreateFactories(service, context.CurrentModule);
 
-            foreach(var m in ObjectCreationFactory.Instance.CreationMethods) {
+            foreach(var m in ObjectCreationFactory.Instance.Factories) {
                 objectFactory.Methods.Add(m);
                 ProtectionParameters.SetParameters(context, m, new ProtectionSettings());
-
             }
+            foreach (var m in CallProxyFactory.Instance.Factories) {
+                objectFactory.Methods.Add(m);
+                ProtectionParameters.SetParameters(context, m, new ProtectionSettings());
+            }
+
             context.CurrentModule.Types.Add(objectFactory);
 
             ProtectionParameters.SetParameters(context, objectFactory, new ProtectionSettings());

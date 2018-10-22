@@ -14,7 +14,6 @@ using TypeScramble.Rewrite.Instructions;
 namespace TypeScramble {
     interface ITypeService {
         IEnumerable<ScannedItem> Targets { get; }
-        IEnumerable<MemberRef> ObjectCreationRef { get; }
         ConfuserContext Context { get; }
 
         void AnalizeMethod(MethodDef m);
@@ -22,8 +21,6 @@ namespace TypeScramble {
         ScannedItem GetScannedItem(IMemberRef m);
 
         void RewriteMethodInstructions(MethodDef m);
-        void AddObjectReference(MemberRef s);
-        void AddMethodReference(MethodSpec m);
     }
 
     class TypeService : ITypeService {
@@ -32,11 +29,6 @@ namespace TypeScramble {
 
         public ConfuserContext Context { get; }
 
-        public IEnumerable<MemberRef> ObjectCreationRef => objectCreationRefs;
-
-        private readonly List<MemberRef> objectCreationRefs = new List<MemberRef>();
-
-        private Dictionary<int, List<MethodSpec>> callReferences = new Dictionary<int, List<MethodSpec>>();
 
         private readonly List<ScannedItem> scannedItems = new List<ScannedItem>();
         private readonly MethodContextAnalyzer[] methodAnalyzers = new MethodContextAnalyzer[] {
@@ -96,6 +88,7 @@ namespace TypeScramble {
 
                 foreach (MethodContextAnalyzer c in methodAnalyzers.Where(x => x.TargetType == operandType)){
                     c.ProcessOperand(this, m, i);
+                    Context.CheckCancellation();
                 }
             }
 
@@ -113,26 +106,14 @@ namespace TypeScramble {
                 var operandType = inst.Operand.GetType().BaseType;
                 foreach (InstructionRewriter ir in instructionRewriters.Where(x => x.TargetType == operandType)) {
                     ir.ProcessInstruction(this, m, instructions, ref i, inst);
+                    Context.CheckCancellation();
                 }
             }
         }
 
         public ScannedItem GetScannedItem(IMemberRef m) => Targets.FirstOrDefault(x => x.MDToken == m.MDToken);
 
-        public void AddObjectReference(MemberRef s) {
-            if (!objectCreationRefs.Contains(s)) {
-                objectCreationRefs.Add(s);
-
-            }
-        }
-
-        public void AddMethodReference(MethodSpec m) {
-            var p = m.Method.MethodSig.Params.Count;
-            if (!callReferences.ContainsKey(p)) {
-                callReferences.Add(p, new List<MethodSpec>());
-            }
-
-            callReferences[p].Add(m);
-        }
+     
+       
     }
 }

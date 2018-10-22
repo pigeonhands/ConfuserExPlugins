@@ -56,6 +56,8 @@
     <Compile Include="Analysis\ScannedType.cs" />
     <Compile Include="AnalyzePhase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rewrite\CallProxyFactory.cs" />
+    <Compile Include="Rewrite\IFactory.cs" />
     <Compile Include="Rewrite\Instructions\InstructionRewriter.cs" />
     <Compile Include="Rewrite\Instructions\MemberRefInstructionRewriter.cs" />
     <Compile Include="Rewrite\Instructions\MethodDefInstructionRewriter.cs" />
