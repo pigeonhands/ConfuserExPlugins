@@ -7,19 +7,28 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace TypeScramble {
-    class AnalyzeMethodsPhase : ProtectionPhase {
+    class AnalyzePhase : ProtectionPhase {
 
-        public AnalyzeMethodsPhase(TypeScrambleProtection parent) : base(parent) {
+        public AnalyzePhase(TypeScrambleProtection parent) : base(parent) {
 
         }
 
-        public override ProtectionTargets Targets => ProtectionTargets.AllDefinitions;
+        public override ProtectionTargets Targets => ProtectionTargets.Methods | ProtectionTargets.Types;
 
-        public override string Name => "Type analysis";
+        public override string Name => "Typescramble analysis";
 
         protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
 
             var service = (TypeService)context.Registry.GetService<ITypeService>();
+
+            foreach(var t in parameters.Targets.WithProgress(context.Logger).OfType<TypeDef>()) {
+                if (t.HasGenericParameters) {
+                    continue;
+                }
+                foreach(var f in t.Fields) {
+                    service.AddAssociatedType(t, f.FieldType);
+                }
+            }
 
 
             foreach (var m in parameters.Targets.WithProgress(context.Logger).OfType<MethodDef>()) {

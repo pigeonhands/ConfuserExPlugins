@@ -22,7 +22,7 @@ namespace TypeScramble {
         }
 
         protected override void PopulatePipeline(ProtectionPipeline pipeline) {
-            pipeline.InsertPreStage(PipelineStage.Inspection, new AnalyzeMethodsPhase(this));
+            pipeline.InsertPreStage(PipelineStage.Inspection, new AnalyzePhase(this));
             pipeline.InsertPostStage(PipelineStage.BeginModule, new ScramblePhase(this));
         }
     }

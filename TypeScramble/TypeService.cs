@@ -13,22 +13,22 @@ using TypeScramble.Rewrite.Instructions;
 
 namespace TypeScramble {
     interface ITypeService {
-        IEnumerable<ScannedMethod> TargetMethods { get; }
+        IEnumerable<ScannedItem> Targets { get; }
 
         void AnalizeMethod(MethodDef m);
         void AddAssociatedType(MethodDef m, TypeSig t);
-        ScannedMethod GetScannedMethod(IMethod m);
+        ScannedItem GetScannedItem(IMemberRef m);
 
     }
 
     class TypeService : ITypeService {
 
-        public IEnumerable<ScannedMethod> TargetMethods => scannedMethods;
+        public IEnumerable<ScannedItem> Targets => scannedItems;
 
 
         private readonly ConfuserContext context;
 
-        private readonly List<ScannedMethod> scannedMethods = new List<ScannedMethod>();
+        private readonly List<ScannedItem> scannedItems = new List<ScannedItem>();
         private readonly MethodContextAnalyzer[] methodAnalyzers = new MethodContextAnalyzer[] {
             new MemberRefAnalyzer(),
             new MethodDefAnalyzer(),
@@ -47,22 +47,33 @@ namespace TypeScramble {
             this.context = _context;
 
         }
+        public void AddAssociatedType(TypeDef type, TypeSig t) {
+            return; //Broken
+            if (type.IsAbstract || type.IsInterface || type.IsNested) {
+                return;
+            }
 
+            var si = GetScannedItem(type);
+            if(si == null) {
+                si = new ScannedType(type);
+                scannedItems.Add(si);
+            }
+            si.AddAssociation(t);
+
+        }
 
         public void AddAssociatedType(MethodDef m, TypeSig t) {
             if (t.IsGenericInstanceType || t.IsGenericTypeParameter) {
                 return;
             }
-             
-            var sm = GetScannedMethod(m);
-            if(sm == null) {
-                sm = new ScannedMethod(m);
-                scannedMethods.Add(sm);
+
+            var si = GetScannedItem(m);
+            if (si == null) {
+                si = new ScannedMethod(m);
+                scannedItems.Add(si);
             }
-            if (t.IsSingleOrMultiDimensionalArray) {
-                context.Logger.DebugFormat("{0} -> {1}", m.Name, t.FullName);
-            }
-            sm.AddAssociation(t);
+
+            si.AddAssociation(t);
         }
 
         public void AnalizeMethod(MethodDef m) {
@@ -96,6 +107,6 @@ namespace TypeScramble {
             }
         }
 
-        public ScannedMethod GetScannedMethod(IMethod m) => TargetMethods.FirstOrDefault(x => x.TargetMethod.MDToken == m.MDToken);
+        public ScannedItem GetScannedItem(IMemberRef m) => Targets.FirstOrDefault(x => x.MDToken == m.MDToken);
     }
 }

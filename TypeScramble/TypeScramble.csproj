@@ -51,8 +51,10 @@
     <Compile Include="Analysis\Context\Methods\MethodDefAnalyzer.cs" />
     <Compile Include="Analysis\Context\Methods\MethodSpecAnalyzer.cs" />
     <Compile Include="Analysis\Context\Methods\TypeRefAnalyzer.cs" />
+    <Compile Include="Analysis\ScannedItem.cs" />
     <Compile Include="Analysis\ScannedMethod.cs" />
-    <Compile Include="AnalyzeMethodsPhase.cs" />
+    <Compile Include="Analysis\ScannedType.cs" />
+    <Compile Include="AnalyzePhase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rewrite\Instructions\InstructionRewriter.cs" />
     <Compile Include="Rewrite\Instructions\MemberRefInstructionRewriter.cs" />

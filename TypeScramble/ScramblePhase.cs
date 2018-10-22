@@ -6,10 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TypeScramble.Analysis;
 
 namespace TypeScramble {
     class ScramblePhase : ProtectionPhase {
-        public override ProtectionTargets Targets => ProtectionTargets.AllDefinitions;
+        public override ProtectionTargets Targets => ProtectionTargets.Methods | ProtectionTargets.Types;
 
         public override string Name => "Type scrambling";
 
@@ -21,18 +22,34 @@ namespace TypeScramble {
             var service = (TypeService)context.Registry.GetService<ITypeService>();
 
 
-            foreach (var m in service.TargetMethods) {
-                m.CreateGenerics();
+            foreach (var target in service.Targets) {
+                target.CreateGenerics();
 
-                foreach(var g in m.GenericParams) {
-                    m.TargetMethod.GenericParameters.Add(g);
+                foreach(var g in target.GenericParams) {
+                    target.AddGenerticParam(g);
                 }
 
-                foreach (var v in m.TargetMethod.Body.Variables) {
-                    v.Type = m.ToGenericIfAvalible(v.Type);
-                }
+                switch (target) {
+                    case ScannedMethod m:
 
-                m.TargetMethod.ReturnType = m.ToGenericIfAvalible(m.TargetMethod.ReturnType);
+                        foreach (var v in m.TargetMethod.Body.Variables) {
+                            v.Type = m.ToGenericIfAvalible(v.Type);
+                        }
+
+                        m.TargetMethod.ReturnType = target.ToGenericIfAvalible(m.TargetMethod.ReturnType);
+                        break;
+
+
+                    case ScannedType t:
+                        /*
+                        foreach(var f in t.TargetType.Fields) {
+                            f.FieldType = target.ToGenericIfAvalible(f.FieldType);
+                        }
+                        */
+
+                        break;
+                }
+                
             }
 
             //Reroute entrypoint
@@ -49,7 +66,7 @@ namespace TypeScramble {
                     originalEntry.ImplAttributes, originalEntry.Attributes);
 
                 IMethod callSig = originalEntry;
-                var scannedEntry = service.GetScannedMethod(originalEntry);
+                var scannedEntry = service.GetScannedItem(originalEntry);
                 if (scannedEntry != null) {
                     callSig = new MethodSpecUser(originalEntry, new GenericInstMethodSig(scannedEntry.GenericCallTypes.ToArray()));
                 }
