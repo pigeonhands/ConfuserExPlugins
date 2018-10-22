@@ -61,6 +61,7 @@
     <Compile Include="Rewrite\Instructions\MethodDefInstructionRewriter.cs" />
     <Compile Include="Rewrite\Instructions\TypeDefInstructionRewriter.cs" />
     <Compile Include="Rewrite\Instructions\TypeRefInstructionRewriter.cs" />
+    <Compile Include="Rewrite\ObjectCreationFactory.cs" />
     <Compile Include="ScramblePhase.cs" />
     <Compile Include="TypeScrambleProtection.cs" />
     <Compile Include="TypeService.cs" />

@@ -30,11 +30,14 @@ namespace TypeScramble.Rewrite.Instructions {
                 return;
             }
 
-          
+            var typeSig = operand.DeclaringType.ToTypeSig();
+            var currentMethod = service.GetScannedItem(method);
+            if(currentMethod != null) {
+                typeSig = currentMethod.ToGenericIfAvalible(typeSig);
+            }
 
-            // :TODO
-
-            //Object creation factory
+            body[index].OpCode = OpCodes.Call;
+            body[index].Operand = new MethodSpecUser(service.CreationFactoryNoParameters, new GenericInstMethodSig(typeSig));
 
         }
     }

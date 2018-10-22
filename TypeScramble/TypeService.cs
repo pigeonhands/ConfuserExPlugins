@@ -14,11 +14,16 @@ using TypeScramble.Rewrite.Instructions;
 namespace TypeScramble {
     interface ITypeService {
         IEnumerable<ScannedItem> Targets { get; }
+        IEnumerable<MemberRef> ObjectCreationRef { get; }
+        MethodDef CreationFactoryNoParameters { get; set; }
+        ConfuserContext Context { get; }
 
         void AnalizeMethod(MethodDef m);
         void AddAssociatedType(MethodDef m, TypeSig t);
         ScannedItem GetScannedItem(IMemberRef m);
 
+        void RewriteMethodInstructions(MethodDef m);
+        void AddObjectReference(MemberRef s);
     }
 
     class TypeService : ITypeService {
@@ -26,7 +31,13 @@ namespace TypeScramble {
         public IEnumerable<ScannedItem> Targets => scannedItems;
 
 
-        private readonly ConfuserContext context;
+        public MethodDef CreationFactoryNoParameters { get; set; }
+
+        public ConfuserContext Context { get; }
+
+        public IEnumerable<MemberRef> ObjectCreationRef => objectCreationRefs;
+
+        private readonly List<MemberRef> objectCreationRefs = new List<MemberRef>();
 
         private readonly List<ScannedItem> scannedItems = new List<ScannedItem>();
         private readonly MethodContextAnalyzer[] methodAnalyzers = new MethodContextAnalyzer[] {
@@ -44,7 +55,7 @@ namespace TypeScramble {
         };
 
         public TypeService( ConfuserContext _context) {
-            this.context = _context;
+            this.Context = _context;
 
         }
         public void AddAssociatedType(TypeDef type, TypeSig t) {
@@ -85,7 +96,7 @@ namespace TypeScramble {
                 var operandType = i.Operand.GetType().BaseType;
 
                 foreach (MethodContextAnalyzer c in methodAnalyzers.Where(x => x.TargetType == operandType)){
-                    c.ProcessOperand(this, m, i.Operand);
+                    c.ProcessOperand(this, m, i);
                 }
             }
 
@@ -108,5 +119,12 @@ namespace TypeScramble {
         }
 
         public ScannedItem GetScannedItem(IMemberRef m) => Targets.FirstOrDefault(x => x.MDToken == m.MDToken);
+
+        public void AddObjectReference(MemberRef s) {
+            if (!objectCreationRefs.Contains(s)) {
+                objectCreationRefs.Add(s);
+
+            }
+        }
     }
 }
