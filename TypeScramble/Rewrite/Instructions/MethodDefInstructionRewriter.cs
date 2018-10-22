@@ -10,8 +10,8 @@ namespace TypeScramble.Rewrite.Instructions {
     class MethodDefInstructionRewriter : InstructionRewriter<MethodDef> {
         public override void ProcessOperand(ITypeService service, MethodDef method, IList<Instruction> body, ref int index, MethodDef operand) {
 
-            var currentMethod = service.TargetMethods.FirstOrDefault(x => x.TargetMethod.MDToken == method.MDToken);
-            var targetMethod = service.TargetMethods.FirstOrDefault(x => x.TargetMethod.MDToken == operand.MDToken);
+            var currentMethod = service.GetScannedMethod(method);
+            var targetMethod = service.GetScannedMethod(operand);
 
 
             if (targetMethod != null) {

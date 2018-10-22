@@ -11,7 +11,7 @@ namespace DummyApplication {
         static void Main(string[] args) {
 
             var t = new GenericType<int>();
-            //   Console.WriteLine(t.GetValue());
+               Console.WriteLine(t.GetValue());
 
 
             var ft = new FlatType();

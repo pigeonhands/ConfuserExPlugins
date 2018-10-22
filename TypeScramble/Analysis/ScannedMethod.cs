@@ -18,6 +18,8 @@ namespace TypeScramble.Analysis {
 
         public readonly Dictionary<uint, GenericParam> Generics = new Dictionary<uint, GenericParam>();
 
+        private const string GenericParamName = "|";
+
         public ScannedMethod(MethodDef target) {
             TargetMethod = target;
         }
@@ -38,7 +40,7 @@ namespace TypeScramble.Analysis {
                     Generics.Add(t.ScopeType.MDToken.Raw, 
                         new GenericParamUser(
                             (ushort)(TargetMethod.DeclaringType.GenericParameters.Count + TargetMethod.GenericParameters.Count + Generics.Count()), 
-                            GenericParamAttributes.NoSpecialConstraint, t.TypeName)); //gen name
+                            GenericParamAttributes.NoSpecialConstraint, GenericParamName)); //gen name
                     GenericCallTypes.Add(t);
                 }
             }
@@ -57,6 +59,7 @@ namespace TypeScramble.Analysis {
             }
 
             TypeSig newSig = new GenericMVar(gp.Number);
+
             if (t.IsSingleOrMultiDimensionalArray) {
                 var arraySig = t as SZArraySig;
                 if (arraySig == null || arraySig.IsMultiDimensional) {
