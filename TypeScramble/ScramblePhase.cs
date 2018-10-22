@@ -20,21 +20,8 @@ namespace TypeScramble {
 
             var service = (TypeService)context.Registry.GetService<ITypeService>();
 
-            /*
-            var entry = context.CurrentModule.EntryPoint;
-            if(entry != null) {
-                entry.Name = "_start";
-                var newEntry = new MethodDefUser("Main", entry.MethodSig, entry.ImplAttributes, entry.Attributes);
-                newEntry.Body = new dnlib.DotNet.Emit.CilBody(false, new Instruction[]{
-                    Instruction.Create(OpCodes.Call, newEntry),
-                }, null, new LocalList());
-                entry.DeclaringType.Methods.Add(newEntry);
-                context.CurrentModule.EntryPoint = newEntry;
-                
-            }
-            */
 
-            foreach(var m in service.TargetMethods) {
+            foreach (var m in service.TargetMethods) {
                 m.CreateGenerics();
 
                 foreach(var g in m.GenericParams) {
@@ -46,6 +33,39 @@ namespace TypeScramble {
                 }
 
                 m.TargetMethod.ReturnType = m.ToGenericIfAvalible(m.TargetMethod.ReturnType);
+            }
+
+            //Reroute entrypoint
+            var originalEntry = context.CurrentModule.EntryPoint;
+            if (originalEntry != null) {
+                originalEntry.Name = "_start";
+
+                var param = originalEntry.Parameters.FirstOrDefault()?.Type;
+
+
+                var newEntry = new MethodDefUser("Main",
+                    //new MethodSig(originalEntry.CallingConvention, 0, originalEntry.ReturnType, param == null ? new TypeSig[0] : new TypeSig[] { param }), 
+                    originalEntry.MethodSig,
+                    originalEntry.ImplAttributes, originalEntry.Attributes);
+
+                IMethod callSig = originalEntry;
+                var scannedEntry = service.GetScannedMethod(originalEntry);
+                if (scannedEntry != null) {
+                    callSig = new MethodSpecUser(originalEntry, new GenericInstMethodSig(scannedEntry.GenericCallTypes.ToArray()));
+                }
+
+
+                newEntry.Body = new dnlib.DotNet.Emit.CilBody(false, new Instruction[]{
+                    Instruction.Create(param == null ? OpCodes.Nop : OpCodes.Ldarg_0),
+                    Instruction.Create(OpCodes.Call, callSig),
+                    Instruction.Create(OpCodes.Ret),
+                }, new ExceptionHandler[0], new LocalList());
+
+                originalEntry.DeclaringType.Methods.Add(newEntry);
+                context.CurrentModule.EntryPoint = newEntry;
+                ProtectionParameters.SetParameters(context, newEntry, ProtectionParameters.GetParameters(context, originalEntry));
+
+                service.RewriteMethodInstructions(newEntry);
             }
 
 

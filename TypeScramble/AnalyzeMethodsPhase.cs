@@ -25,7 +25,7 @@ namespace TypeScramble {
             foreach (var m in parameters.Targets.WithProgress(context.Logger).OfType<MethodDef>()) {
 
 
-                if(!m.HasBody || m.Module.EntryPoint == m || m.IsAbstract || m.IsVirtual || m.IsConstructor || m.IsGetter || m.HasOverrides) {
+                if(!m.HasBody || m.IsAbstract || m.IsVirtual || m.IsConstructor || m.IsGetter || m.HasOverrides) {
                     continue;
                 }
 
