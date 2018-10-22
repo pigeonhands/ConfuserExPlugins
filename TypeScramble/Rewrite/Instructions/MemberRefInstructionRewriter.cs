@@ -37,7 +37,7 @@ namespace TypeScramble.Rewrite.Instructions {
             }
 
             body[index].OpCode = OpCodes.Call;
-            body[index].Operand = new MethodSpecUser(service.CreationFactoryNoParameters, new GenericInstMethodSig(typeSig));
+            body[index].Operand = new MethodSpecUser(ObjectCreationFactory.Instance.GetCreationMethod(0), new GenericInstMethodSig(typeSig));
 
         }
     }

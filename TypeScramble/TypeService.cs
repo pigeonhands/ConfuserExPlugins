@@ -15,7 +15,6 @@ namespace TypeScramble {
     interface ITypeService {
         IEnumerable<ScannedItem> Targets { get; }
         IEnumerable<MemberRef> ObjectCreationRef { get; }
-        MethodDef CreationFactoryNoParameters { get; set; }
         ConfuserContext Context { get; }
 
         void AnalizeMethod(MethodDef m);
@@ -24,20 +23,20 @@ namespace TypeScramble {
 
         void RewriteMethodInstructions(MethodDef m);
         void AddObjectReference(MemberRef s);
+        void AddMethodReference(MethodSpec m);
     }
 
     class TypeService : ITypeService {
 
         public IEnumerable<ScannedItem> Targets => scannedItems;
 
-
-        public MethodDef CreationFactoryNoParameters { get; set; }
-
         public ConfuserContext Context { get; }
 
         public IEnumerable<MemberRef> ObjectCreationRef => objectCreationRefs;
 
         private readonly List<MemberRef> objectCreationRefs = new List<MemberRef>();
+
+        private Dictionary<int, List<MethodSpec>> callReferences = new Dictionary<int, List<MethodSpec>>();
 
         private readonly List<ScannedItem> scannedItems = new List<ScannedItem>();
         private readonly MethodContextAnalyzer[] methodAnalyzers = new MethodContextAnalyzer[] {
@@ -125,6 +124,15 @@ namespace TypeScramble {
                 objectCreationRefs.Add(s);
 
             }
+        }
+
+        public void AddMethodReference(MethodSpec m) {
+            var p = m.Method.MethodSig.Params.Count;
+            if (!callReferences.ContainsKey(p)) {
+                callReferences.Add(p, new List<MethodSpec>());
+            }
+
+            callReferences[p].Add(m);
         }
     }
 }

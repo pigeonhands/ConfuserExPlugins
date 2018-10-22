@@ -9,7 +9,21 @@ using System.Threading.Tasks;
 namespace TypeScramble.Rewrite {
     class ObjectCreationFactory {
 
-        public static MethodDef CreateFactoryMethodNoParameters(ITypeService service, ModuleDef module) {
+        public static readonly ObjectCreationFactory Instance = new ObjectCreationFactory();
+
+        public IEnumerable<MethodDef> CreationMethods => objectCreationFactories.Values;
+
+        private Dictionary<int, MethodDef> objectCreationFactories;
+
+        public void CreateMethods(ITypeService service, ModuleDef module) {
+            objectCreationFactories = new Dictionary<int, MethodDef>() {
+                {0,CreateFactoryMethodNoParameters(service, module) },
+            };
+        }
+
+        public MethodDef GetCreationMethod(int param) => objectCreationFactories[param];
+
+        private  MethodDef CreateFactoryMethodNoParameters(ITypeService service, ModuleDef module) {
 
             var instancevar = new GenericParamUser(0, GenericParamAttributes.NoSpecialConstraint, "t");
             var mvar = new GenericMVar(0);
