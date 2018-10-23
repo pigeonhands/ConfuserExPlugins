@@ -19,7 +19,7 @@ namespace TypeScramble {
 
         protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
 
-            var service = (TypeService)context.Registry.GetService<ITypeService>();
+            var service = context.Registry.GetService<ITypeService>();
 
             foreach(var t in parameters.Targets.WithProgress(context.Logger).OfType<TypeDef>()) {
                 if (t.HasGenericParameters) {
@@ -32,7 +32,6 @@ namespace TypeScramble {
 
 
             foreach (var m in parameters.Targets.WithProgress(context.Logger).OfType<MethodDef>()) {
-
 
                 if(!m.HasBody || m.IsAbstract || m.IsVirtual || m.IsConstructor || m.IsGetter || m.HasOverrides) {
                     continue;

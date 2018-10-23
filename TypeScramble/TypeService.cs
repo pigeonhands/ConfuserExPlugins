@@ -18,6 +18,8 @@ namespace TypeScramble {
 
         void AnalizeMethod(MethodDef m);
         void AddAssociatedType(MethodDef m, TypeSig t);
+        void AddAssociatedType(TypeDef m, TypeSig t);
+
         ScannedItem GetScannedItem(IMemberRef m);
 
         void RewriteMethodInstructions(MethodDef m);

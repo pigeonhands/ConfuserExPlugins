@@ -14,7 +14,7 @@ namespace TypeScramble.Rewrite {
         private Dictionary<int, List<MemberRef>> callReferences = new Dictionary<int, List<MemberRef>>();
         private Dictionary<int, MethodDef> callFactories = new Dictionary<int, MethodDef>();
 
-        public IEnumerable<MethodDef> Factories => callFactories.Values;
+        public IEnumerable<MethodDef> FactoryMethods => callFactories.Values;
 
         public void AddMethodReference(MemberRef m) {
             var p = m.MethodSig.Params.Count;
@@ -80,7 +80,7 @@ namespace TypeScramble.Rewrite {
 
             var retDef = new Instruction[]{
                 Instruction.Create(OpCodes.Ldloca_S, local),
-               Instruction.Create(OpCodes.Initobj, new TypeSpecUser(returnGeneric)),
+                Instruction.Create(OpCodes.Initobj, new TypeSpecUser(returnGeneric)),
                 Instruction.Create(OpCodes.Ldloc, local),
                 Instruction.Create(OpCodes.Ret),
             };
@@ -148,7 +148,11 @@ namespace TypeScramble.Rewrite {
             return index;
         }
 
-        public MethodDef GetFactory(int numberOfParams) => callFactories[numberOfParams];
+        public MethodDef GetFactory(int numberOfParams) {
+            MethodDef m;
+            callFactories.TryGetValue(numberOfParams, out m);
+            return m;
+        }
 
     }
 }

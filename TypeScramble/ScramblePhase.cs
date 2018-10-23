@@ -22,54 +22,35 @@ namespace TypeScramble {
 
             var service = context.Registry.GetService<ITypeService>();
 
-            var objectFactory = new  TypeDefUser("factory", context.CurrentModule.GlobalType);
-            ObjectCreationFactory.Instance.CreateFactories(service, context.CurrentModule);
-            CallProxyFactory.Instance.CreateFactories(service, context.CurrentModule);
+            IFactory[] factories = new IFactory[] { //remove a factory from the list to disable
+                ObjectCreationFactory.Instance,
+                //CallProxyFactory.Instance,
+            };
 
-            foreach(var m in ObjectCreationFactory.Instance.Factories) {
-                objectFactory.Methods.Add(m);
-                ProtectionParameters.SetParameters(context, m, new ProtectionSettings());
-            }
-            foreach (var m in CallProxyFactory.Instance.Factories) {
-                objectFactory.Methods.Add(m);
-                ProtectionParameters.SetParameters(context, m, new ProtectionSettings());
-            }
-
+            var objectFactory = new TypeDefUser("factory", context.CurrentModule.GlobalType);
+            CreateFactories(objectFactory, service, context, factories);
             context.CurrentModule.Types.Add(objectFactory);
 
             ProtectionParameters.SetParameters(context, objectFactory, new ProtectionSettings());
 
-            foreach (var target in service.Targets) {
-                target.CreateGenerics();
-
-                foreach(var g in target.GenericParams) {
-                    target.AddGenerticParam(g);
-                }
-
-                switch (target) {
-                    case ScannedMethod m:
-
-                        foreach (var v in m.TargetMethod.Body.Variables) {
-                            v.Type = m.ToGenericIfAvalible(v.Type);
-                        }
-
-                        m.TargetMethod.ReturnType = target.ToGenericIfAvalible(m.TargetMethod.ReturnType);
-                        break;
-
-
-                    case ScannedType t:
-                        /*
-                        foreach(var f in t.TargetType.Fields) {
-                            f.FieldType = target.ToGenericIfAvalible(f.FieldType);
-                        }
-                        */
-
-                        break;
-                }
-                
+            //Apply new generic signatures for targets
+            foreach (ScannedItem item in service.Targets) {
+                SetGenericsForItem(item); 
             }
 
-            //Reroute entrypoint
+            //Create a new Main method so the original can bennifit from typescambling
+            RerouteEntrypoint(service, context); //If this is removed, either remove the metrypoint from the scanned items or add a check in the Analize phase
+
+            //Modify calls/references so that they work with new signatures
+            foreach (var method in parameters.Targets.WithProgress(context.Logger).OfType<MethodDef>()) {
+                if (!method.HasBody) {
+                    return;
+                }
+                service.RewriteMethodInstructions(method);
+            }
+        }
+
+        private void RerouteEntrypoint(ITypeService service, ConfuserContext context) {
             var originalEntry = context.CurrentModule.EntryPoint;
             if (originalEntry != null) {
                 originalEntry.Name = "_start";
@@ -102,15 +83,46 @@ namespace TypeScramble {
                 service.RewriteMethodInstructions(newEntry);
             }
 
+        }
 
-            foreach (var method in parameters.Targets.WithProgress(context.Logger).OfType<MethodDef>()) {
+        private void SetGenericsForItem(ScannedItem target) {
+            target.CreateGenerics();
 
-                if (!method.HasBody) {
-                    return;
+            foreach (var g in target.GenericParams) {
+                target.AddGenerticParam(g);
+            }
+
+            switch (target) {
+                case ScannedMethod m:
+
+                    foreach (var v in m.TargetMethod.Body.Variables) {
+                        v.Type = m.ToGenericIfAvalible(v.Type);
+                    }
+
+                    m.TargetMethod.ReturnType = target.ToGenericIfAvalible(m.TargetMethod.ReturnType);
+                    break;
+
+
+                case ScannedType t:
+                    /*
+                    foreach(var f in t.TargetType.Fields) {
+                        f.FieldType = target.ToGenericIfAvalible(f.FieldType);
+                    }
+                    */
+
+                    break;
+            }
+        }
+
+        private void CreateFactories(TypeDefUser factpryParentClass, ITypeService service, ConfuserContext context, IFactory[] factories) {
+
+            foreach(IFactory factory in factories) {
+                factory.CreateFactories(service, context.CurrentModule);
+
+                foreach(var generatedFactoryMethod in factory.FactoryMethods) {
+                    factpryParentClass.Methods.Add(generatedFactoryMethod);
+                    ProtectionParameters.SetParameters(context, generatedFactoryMethod, new ProtectionSettings());
                 }
-
-                service.RewriteMethodInstructions(method);
-
             }
 
         }

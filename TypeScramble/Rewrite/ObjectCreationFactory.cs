@@ -13,7 +13,7 @@ namespace TypeScramble.Rewrite {
 
         public IEnumerable<MemberRef> ObjectCreationRef => objectCreationRefs;
 
-        public IEnumerable<MethodDef> Factories => objectCreationFactories.Values;
+        public IEnumerable<MethodDef> FactoryMethods => objectCreationFactories.Values;
 
         private readonly List<MemberRef> objectCreationRefs = new List<MemberRef>();
 
@@ -84,7 +84,11 @@ namespace TypeScramble.Rewrite {
             };
         }
 
-        public MethodDef GetFactory(int numberOfParams) =>  objectCreationFactories[numberOfParams];
+        public MethodDef GetFactory(int numberOfParams) {
+            MethodDef m;
+            objectCreationFactories.TryGetValue(numberOfParams, out m);
+            return m;
+        }
         
         
     }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TypeScramble.Rewrite {
     interface IFactory {
-        IEnumerable<MethodDef> Factories { get; }
+        IEnumerable<MethodDef> FactoryMethods { get; }
         void CreateFactories(ITypeService service, ModuleDef module);
 
         MethodDef GetFactory(int numberOfParams);
