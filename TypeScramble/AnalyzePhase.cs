@@ -33,7 +33,7 @@ namespace TypeScramble {
 
             foreach (var m in parameters.Targets.WithProgress(context.Logger).OfType<MethodDef>()) {
 
-                if(!m.HasBody || m.IsAbstract || m.IsVirtual || m.IsConstructor || m.IsGetter || m.HasOverrides) {
+                if(!service.ShouldModify(m)) {
                     continue;
                 }
 

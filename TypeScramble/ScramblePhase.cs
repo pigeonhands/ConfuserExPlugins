@@ -59,7 +59,6 @@ namespace TypeScramble {
 
 
                 var newEntry = new MethodDefUser("Main",
-                    //new MethodSig(originalEntry.CallingConvention, 0, originalEntry.ReturnType, param == null ? new TypeSig[0] : new TypeSig[] { param }), 
                     originalEntry.MethodSig,
                     originalEntry.ImplAttributes, originalEntry.Attributes);
 

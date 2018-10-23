@@ -17,10 +17,10 @@ namespace TypeScramble {
         ConfuserContext Context { get; }
 
         void AnalizeMethod(MethodDef m);
-        void AddAssociatedType(MethodDef m, TypeSig t);
-        void AddAssociatedType(TypeDef m, TypeSig t);
+        void AddAssociatedType(IMemberRef m, TypeSig t);
 
         ScannedItem GetScannedItem(IMemberRef m);
+        bool ShouldModify(MethodDef m);
 
         void RewriteMethodInstructions(MethodDef m);
     }
@@ -51,33 +51,36 @@ namespace TypeScramble {
             this.Context = _context;
 
         }
-        public void AddAssociatedType(TypeDef type, TypeSig t) {
-            return; //Broken
-            if (type.IsAbstract || type.IsInterface || type.IsNested) {
+
+        public void AddAssociatedType(IMemberRef type, TypeSig associatedType) {
+            if (associatedType.IsGenericInstanceType || associatedType.IsGenericTypeParameter) {
                 return;
             }
 
             var si = GetScannedItem(type);
-            if(si == null) {
-                si = new ScannedType(type);
-                scannedItems.Add(si);
-            }
-            si.AddAssociation(t);
-
-        }
-
-        public void AddAssociatedType(MethodDef m, TypeSig t) {
-            if (t.IsGenericInstanceType || t.IsGenericTypeParameter) {
-                return;
-            }
-
-            var si = GetScannedItem(m);
             if (si == null) {
-                si = new ScannedMethod(m);
+
+                switch (type) {
+                    case MethodDef m:
+                        si = new ScannedMethod(m);
+                        break;
+
+                    case TypeDef t:
+                       // si = new ScannedType(t); //types are currently Broken
+                        break;
+
+                    default:
+                        throw new ArgumentException($"AddAssociatedType type must be either MethodDef or TypeDef", "type");
+                }
+                
+                if(si == null) {
+                    return; //Should never happen in a working version. More for testing
+                }
+
                 scannedItems.Add(si);
             }
 
-            si.AddAssociation(t);
+            si.AddAssociation(associatedType);
         }
 
         public void AnalizeMethod(MethodDef m) {
@@ -115,7 +118,7 @@ namespace TypeScramble {
 
         public ScannedItem GetScannedItem(IMemberRef m) => Targets.FirstOrDefault(x => x.MDToken == m.MDToken);
 
-     
-       
+        public bool ShouldModify(MethodDef m) 
+            => m.HasBody && !( m.IsAbstract || m.IsVirtual || m.IsConstructor || m.IsGetter || m.HasOverrides);
     }
 }
