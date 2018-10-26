@@ -16,9 +16,9 @@ namespace TypeScramble.Rewrite {
 
         public IEnumerable<MethodDef> FactoryMethods => callFactories.Values;
 
-        public void AddMethodReference(MemberRef m) {
+        public void AddMethodReference(IMethodDefOrRef m) {
             var p = m.MethodSig.Params.Count;
-            if (m.HasThis) {
+            if (m.MethodSig.HasThis) {
                 p++;
             }
             if (!callReferences.ContainsKey(p)) {

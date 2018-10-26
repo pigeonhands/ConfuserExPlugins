@@ -19,7 +19,7 @@ namespace TypeScramble.Rewrite {
 
         private readonly Dictionary<int, MethodDef> objectCreationFactories = new Dictionary<int, MethodDef>();
 
-        public void AddObjectReference(MemberRef s) {
+        public void AddObjectReference(IMethodDefOrRef s) {
             if (!objectCreationRefs.Contains(s)) {
                 objectCreationRefs.Add(s);
 

@@ -21,6 +21,12 @@ namespace TypeScramble.Rewrite.Instructions {
             }
             */
 
+            if (body[index].OpCode == OpCodes.Newobj) {
+                FactoryHealper.ApplyObjectCreationProxy(service, currentMethod, body, ref index, operand);
+            } else {
+                FactoryHealper.ApplyCallProxy(service, currentMethod, body, ref index, operand);
+            }
+
             if (targetMethod != null) {
                 var typeSigList = targetMethod.GenericCallTypes.Select(x => currentMethod?.ToGenericIfAvalible(x) ?? x).ToArray();
                 body[index].Operand = new MethodSpecUser(operand, new GenericInstMethodSig(typeSigList));
