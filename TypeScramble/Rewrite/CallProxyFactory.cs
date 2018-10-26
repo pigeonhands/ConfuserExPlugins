@@ -154,5 +154,9 @@ namespace TypeScramble.Rewrite {
             return m;
         }
 
+        public void Reset() {
+            callFactories.Clear();
+            callReferences.Clear();
+        }
     }
 }

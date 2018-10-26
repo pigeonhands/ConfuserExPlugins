@@ -17,7 +17,7 @@ namespace TypeScramble.Rewrite {
 
         private readonly List<IMethodDefOrRef> objectCreationRefs = new List<IMethodDefOrRef>();
 
-        private Dictionary<int, MethodDef> objectCreationFactories;
+        private readonly Dictionary<int, MethodDef> objectCreationFactories = new Dictionary<int, MethodDef>();
 
         public void AddObjectReference(MemberRef s) {
             if (!objectCreationRefs.Contains(s)) {
@@ -79,9 +79,7 @@ namespace TypeScramble.Rewrite {
         }
 
         public void CreateFactories(ITypeService service, ModuleDef module) {
-            objectCreationFactories = new Dictionary<int, MethodDef>() {
-                {0,CreateFactoryMethodNoParameters(service, module) },
-            };
+            objectCreationFactories.Add(0, CreateFactoryMethodNoParameters(service, module));
         }
 
         public MethodDef GetFactory(int numberOfParams) {
@@ -89,7 +87,10 @@ namespace TypeScramble.Rewrite {
             objectCreationFactories.TryGetValue(numberOfParams, out m);
             return m;
         }
-        
-        
+
+        public void Reset() {
+            objectCreationFactories.Clear();
+            objectCreationRefs.Clear();
+        }
     }
 }

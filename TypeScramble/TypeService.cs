@@ -9,12 +9,14 @@ using System.Threading.Tasks;
 using TypeScramble.Analysis;
 using TypeScramble.Analysis.Context;
 using TypeScramble.Analysis.Context.Methods;
+using TypeScramble.Rewrite;
 using TypeScramble.Rewrite.Instructions;
 
 namespace TypeScramble {
     interface ITypeService {
         IEnumerable<ScannedItem> Targets { get; }
         ConfuserContext Context { get; }
+        IFactory[] Factories { get; }
 
         void AnalizeMethod(MethodDef m);
         void AddAssociatedType(IMemberRef m, TypeSig t);
@@ -31,8 +33,12 @@ namespace TypeScramble {
 
         public ConfuserContext Context { get; }
 
+        public IFactory[] Factories { get; } = new IFactory[] { //remove a factory from the list to disable
+                ObjectCreationFactory.Instance,
+                //CallProxyFactory.Instance,
+        };
 
-        private readonly List<ScannedItem> scannedItems = new List<ScannedItem>();
+    private readonly List<ScannedItem> scannedItems = new List<ScannedItem>();
         private readonly MethodContextAnalyzer[] methodAnalyzers = new MethodContextAnalyzer[] {
             new MemberRefAnalyzer(),
             new MethodDefAnalyzer(),

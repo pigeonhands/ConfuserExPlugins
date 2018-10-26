@@ -9,7 +9,8 @@ namespace TypeScramble.Rewrite {
     interface IFactory {
         IEnumerable<MethodDef> FactoryMethods { get; }
         void CreateFactories(ITypeService service, ModuleDef module);
-
         MethodDef GetFactory(int numberOfParams);
+
+        void Reset();
     }
 }

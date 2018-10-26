@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TypeScramble.Rewrite;
 
 namespace TypeScramble {
     class AnalyzePhase : ProtectionPhase {
@@ -20,6 +21,10 @@ namespace TypeScramble {
         protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
 
             var service = context.Registry.GetService<ITypeService>();
+
+            foreach(IFactory f in service.Factories) {
+                f.Reset();
+            }
 
             foreach(var t in parameters.Targets.WithProgress(context.Logger).OfType<TypeDef>()) {
                 if (t.HasGenericParameters) {

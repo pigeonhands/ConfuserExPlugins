@@ -22,13 +22,9 @@ namespace TypeScramble {
 
             var service = context.Registry.GetService<ITypeService>();
 
-            IFactory[] factories = new IFactory[] { //remove a factory from the list to disable
-                ObjectCreationFactory.Instance,
-                //CallProxyFactory.Instance,
-            };
 
             var objectFactory = new TypeDefUser("factory", context.CurrentModule.GlobalType);
-            CreateFactories(objectFactory, service, context, factories);
+            CreateFactories(objectFactory, service, context, service.Factories);
             context.CurrentModule.Types.Add(objectFactory);
 
             ProtectionParameters.SetParameters(context, objectFactory, new ProtectionSettings());
