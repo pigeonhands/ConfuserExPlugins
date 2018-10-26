@@ -19,6 +19,9 @@ namespace DummyApplication {
             Console.WriteLine(ft.Getint());
             Console.WriteLine(Fib(1, 2, 5));
 
+            var inst = GenericSingleton.Instance;
+            inst.SetValue("test str");
+            Console.WriteLine(inst.GetValue());
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

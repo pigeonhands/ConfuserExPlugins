@@ -10,7 +10,7 @@ namespace TypeScramble.Rewrite {
         IEnumerable<MethodDef> FactoryMethods { get; }
         void CreateFactories(ITypeService service, ModuleDef module);
         MethodDef GetFactory(int numberOfParams);
-
+        bool ShouldModify(IMethodDefOrRef m);
         void Reset();
     }
 }

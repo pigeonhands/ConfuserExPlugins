@@ -10,7 +10,11 @@ using TypeScramble.Analysis;
 namespace TypeScramble.Rewrite {
     internal static class FactoryHealper {
 
-        public static void ApplyObjectCreationProxy(ITypeService service, ScannedItem parentItem, IList<Instruction> body, ref int index, IMethodDefOrRef operand) {
+        public static void ApplyObjectCreationProxy( ITypeService service, ScannedItem parentItem, IList<Instruction> body, ref int index, IMethodDefOrRef operand) {
+            if (!ObjectCreationFactory.Instance.ShouldModify(operand)) {
+                return;
+            }
+
             if (operand.MethodSig.Params.Count > 0) { return; } //Not supporeted yet
 
             var proxyMethod = ObjectCreationFactory.Instance.GetCreationMethod(operand.MethodSig.Params.Count);
@@ -28,6 +32,9 @@ namespace TypeScramble.Rewrite {
         }
 
         public static void ApplyCallProxy(ITypeService service, ScannedItem parentItem, IList<Instruction> body, ref int index, IMethodDefOrRef operand) {
+            if (!CallProxyFactory.Instance.ShouldModify(operand)) {
+                return;
+            }
             var proxyMethod = CallProxyFactory.Instance.GetFactory(operand.MethodSig.Params.Count + (operand.MethodSig.HasThis ? 1 : 0));
             if (proxyMethod == null) {
                 return; //No factory for this parameter number (probaby disabled)

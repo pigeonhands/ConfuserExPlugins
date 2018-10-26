@@ -27,7 +27,9 @@ namespace DummyApplication {
             }
         }
 
-
+        public void SetValue(T v) {
+             nextedType.type1 = v;
+        }
         public T GetValue() {
             return nextedType.type1;
         }

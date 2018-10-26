@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FlatType.cs" />
+    <Compile Include="GenericSingleton.cs" />
     <Compile Include="GenericType.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

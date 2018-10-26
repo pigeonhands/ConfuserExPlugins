@@ -19,9 +19,12 @@ namespace TypeScramble.Rewrite {
 
         private readonly Dictionary<int, MethodDef> objectCreationFactories = new Dictionary<int, MethodDef>();
 
-        public void AddObjectReference(IMethodDefOrRef s) {
-            if (!objectCreationRefs.Contains(s)) {
-                objectCreationRefs.Add(s);
+        public void AddObjectReference(IMethodDefOrRef m) {
+            if (!ShouldModify(m)) {
+                return;
+            }
+            if (!objectCreationRefs.Contains(m)) {
+                objectCreationRefs.Add(m);
 
             }
         }
@@ -92,5 +95,7 @@ namespace TypeScramble.Rewrite {
             objectCreationFactories.Clear();
             objectCreationRefs.Clear();
         }
+
+        public bool ShouldModify(IMethodDefOrRef m) => !(m.DeclaringType.ToTypeSig()?.IsGenericInstanceType ?? false);
     }
 }

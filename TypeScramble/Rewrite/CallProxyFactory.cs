@@ -17,6 +17,9 @@ namespace TypeScramble.Rewrite {
         public IEnumerable<MethodDef> FactoryMethods => callFactories.Values;
 
         public void AddMethodReference(IMethodDefOrRef m) {
+            if(!ShouldModify(m)) {
+                return;
+            }
             var p = m.MethodSig.Params.Count;
             if (m.MethodSig.HasThis) {
                 p++;
@@ -158,5 +161,7 @@ namespace TypeScramble.Rewrite {
             callFactories.Clear();
             callReferences.Clear();
         }
+
+        public bool ShouldModify(IMethodDefOrRef m) => m.MethodSig != null && false; //Disabled currently.
     }
 }
