@@ -11,7 +11,7 @@ namespace TypeScramble.Rewrite {
 
         public static readonly CallProxyFactory Instance = new CallProxyFactory();
 
-        private Dictionary<int, List<MemberRef>> callReferences = new Dictionary<int, List<MemberRef>>();
+        private Dictionary<int, List<IMethodDefOrRef>> callReferences = new Dictionary<int, List<IMethodDefOrRef>>();
         private Dictionary<int, MethodDef> callFactories = new Dictionary<int, MethodDef>();
 
         public IEnumerable<MethodDef> FactoryMethods => callFactories.Values;
@@ -22,7 +22,7 @@ namespace TypeScramble.Rewrite {
                 p++;
             }
             if (!callReferences.ContainsKey(p)) {
-                callReferences.Add(p, new List<MemberRef>());
+                callReferences.Add(p, new List<IMethodDefOrRef>());
             }
             if (!callReferences[p].Contains(m)) {
                 callReferences[p].Add(m);
@@ -39,7 +39,7 @@ namespace TypeScramble.Rewrite {
 
         }
 
-        private MethodDef CreateFactory(ITypeService service, ModuleDef module, int paramNumber, IList<MemberRef> methods) {
+        private MethodDef CreateFactory(ITypeService service, ModuleDef module, int paramNumber, IList<IMethodDefOrRef> methods) {
 
             var declaringTypeGeneric = new GenericParamUser(0, GenericParamAttributes.NoSpecialConstraint, "t");
             var declaringTypeGenericMVar = new GenericMVar(0);
@@ -84,7 +84,7 @@ namespace TypeScramble.Rewrite {
                 Instruction.Create(OpCodes.Ldloc, local),
                 Instruction.Create(OpCodes.Ret),
             };
-            foreach (MemberRef mr in methods) {
+            foreach (var mr in methods) {
 
                 Instruction endjump = Instruction.Create(OpCodes.Nop);
 
@@ -134,7 +134,7 @@ namespace TypeScramble.Rewrite {
             return method;
         }
 
-        public int GetIndexOfMethodInDeclaringType(MemberRef mr) {
+        public int GetIndexOfMethodInDeclaringType(IMethodDefOrRef mr) {
             var methods = callReferences[mr.MethodSig.Params.Count];
             int index = 0;
             foreach (var m in methods) {

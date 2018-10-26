@@ -11,7 +11,7 @@ using TypeScramble.Rewrite;
 
 namespace TypeScramble {
     class ScramblePhase : ProtectionPhase {
-        public override ProtectionTargets Targets => ProtectionTargets.Methods | ProtectionTargets.Types;
+        public override ProtectionTargets Targets => ProtectionTargets.Methods;
 
         public override string Name => "Type scrambling";
 

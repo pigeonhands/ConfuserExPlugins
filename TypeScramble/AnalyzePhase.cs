@@ -13,7 +13,7 @@ namespace TypeScramble {
 
         }
 
-        public override ProtectionTargets Targets => ProtectionTargets.Methods | ProtectionTargets.Types;
+        public override ProtectionTargets Targets => ProtectionTargets.Methods;
 
         public override string Name => "Typescramble analysis";
 

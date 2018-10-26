@@ -11,11 +11,11 @@ namespace TypeScramble.Rewrite {
 
         public static readonly ObjectCreationFactory Instance = new ObjectCreationFactory();
 
-        public IEnumerable<MemberRef> ObjectCreationRef => objectCreationRefs;
+        public IEnumerable<IMethodDefOrRef> ObjectCreationRef => objectCreationRefs;
 
         public IEnumerable<MethodDef> FactoryMethods => objectCreationFactories.Values;
 
-        private readonly List<MemberRef> objectCreationRefs = new List<MemberRef>();
+        private readonly List<IMethodDefOrRef> objectCreationRefs = new List<IMethodDefOrRef>();
 
         private Dictionary<int, MethodDef> objectCreationFactories;
 
@@ -51,7 +51,7 @@ namespace TypeScramble.Rewrite {
             i.Add(Instruction.Create(OpCodes.Stloc, rtHandle));
 
 
-            foreach (MemberRef mr in ObjectCreationRef) {
+            foreach (var mr in ObjectCreationRef) {
                 Instruction endjump = Instruction.Create(OpCodes.Nop);
 
                 i.Add(Instruction.Create(OpCodes.Ldloc, rtHandle));
